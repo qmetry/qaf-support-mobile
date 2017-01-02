@@ -30,6 +30,7 @@
 package com.qmetry.qaf.automation.step;
 
 import com.qmetry.qaf.automation.ui.WebDriverTestBase;
+import io.appium.java_client.AppiumDriver;
 
 /**
  * com.qmetry.qaf.automation.step.AppiumSteps.java
