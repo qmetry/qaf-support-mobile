@@ -29,8 +29,14 @@
 
 package com.qmetry.qaf.automation.step;
 
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
+
 import com.qmetry.qaf.automation.ui.WebDriverTestBase;
+
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.MultiTouchAction;
+import io.appium.java_client.TouchAction;
 
 /**
  * com.qmetry.qaf.automation.step.AppiumSteps.java
@@ -38,12 +44,14 @@ import io.appium.java_client.AppiumDriver;
  * @author chirag.jayswal
  */
 public final class AppiumSteps {
+
 	/**
 	 * Swipe from Bottom to Top.
 	 */
 	public static void swipeUp() {
 		Point[] points = getXYtoVSwipe();
-		getDriver().swipe(points[0].x, points[0].y, points[1].x, points[1].y, 1);
+		new TouchAction(getDriver()).press(points[0].x, points[0].y).waitAction(1)
+				.moveTo(points[1].x, points[1].y).release().perform();
 	}
 
 	/**
@@ -51,7 +59,8 @@ public final class AppiumSteps {
 	 */
 	public static void swipeDown() {
 		Point[] points = getXYtoVSwipe();
-		getDriver().swipe(points[1].x, points[1].y, points[0].x, points[0].y, 1);
+		new TouchAction(getDriver()).press(points[1].x, points[1].y).waitAction(1)
+				.moveTo(points[0].x, points[0].y).release().perform();
 	}
 
 	/**
@@ -59,7 +68,9 @@ public final class AppiumSteps {
 	 */
 	public static void swipeLeft() {
 		Point[] points = getXYtoHSwipe();
-		getDriver().swipe(points[0].x, points[0].y, points[1].x, points[1].y, 1);
+		new TouchAction(getDriver()).press(points[0].x, points[0].y).waitAction(1)
+				.moveTo(points[1].x, points[1].y).release().perform();
+
 	}
 
 	/**
@@ -67,7 +78,8 @@ public final class AppiumSteps {
 	 */
 	public static void swipeRight() {
 		Point[] points = getXYtoHSwipe();
-		getDriver().swipe(points[1].x, points[1].y, points[0].x, points[0].y, 1);
+		new TouchAction(getDriver()).press(points[1].x, points[1].y).waitAction(1)
+				.moveTo(points[0].x, points[0].y).release().perform();
 	}
 
 	/**
@@ -104,43 +116,51 @@ public final class AppiumSteps {
 		return new Point[]{new Point(startx, startEndy), new Point(endx, startEndy)};
 	}
 	/**
- 	 * Press and hold the at an absolute position on the screen until the
- 	 * context menu event has fired.
- 	 *
- 	 * @param x
- 	 *            x coordinate.
- 	 * @param y
- 	 *            y coordinate.
- 	 * @param duration
- 	 *            of the long-press, in milliseconds.
- 	 */
- 	@QAFTestStep(stepName = "longPress", description = "longPress on {x} {y} for {duration} duration")
- 	public static void longPress(int x, int y, int duration) {
- 		getDriver().tap(1, x, y, duration);
- 	}
- 
- 	/**
- 	 * Creates the swiping action. It is supposed to be performed inside the
- 	 * given element.
- 	 *
- 	 * @param startX
- 	 * @param startY
- 	 * @param endX
- 	 * @param endY
- 	 * @param duration
- 	 *            of the swipe, in milliseconds.
- 	 */
- 	@QAFTestStep(stepName = "swipe", description = "swipe from {startX},{startY} to {endX},{endY} in {duration} duration")
- 	public static void swipe(int startX, int startY, int endX, int endY, int duration) {
- 		getDriver().swipe(startX, startY, endX, endY, duration);
- 	}
-  
+	 * Press and hold the at an absolute position on the screen until the
+	 * context menu event has fired.
+	 *
+	 * @param x
+	 *            x coordinate.
+	 * @param y
+	 *            y coordinate.
+	 * @param duration
+	 *            of the long-press, in milliseconds.
+	 */
+	@QAFTestStep(stepName = "longPress", description = "longPress on {x} {y} for {duration} duration")
+	public static void longPress(int x, int y, int duration) {
+		MultiTouchAction multiTouch = new MultiTouchAction(getDriver());
+
+		for (int i = 0; i < 1; i++) {
+			TouchAction tap = new TouchAction(getDriver());
+			multiTouch.add(tap.press(x, y).waitAction(duration).release());
+		}
+		multiTouch.perform();
+	}
+
+	/**
+	 * Creates the swiping action. It is supposed to be performed inside the
+	 * given element.
+	 *
+	 * @param startX
+	 * @param startY
+	 * @param endX
+	 * @param endY
+	 * @param duration
+	 *            of the swipe, in milliseconds.
+	 */
+	@QAFTestStep(stepName = "swipe", description = "swipe from {startX},{startY} to {endX},{endY} in {duration} duration")
+	public static void swipe(int startX, int startY, int endX, int endY, int duration) {
+		new TouchAction(getDriver()).press(startX, startY).waitAction(duration)
+				.moveTo(endX, endY).release().perform();
+	}
+
 	@SuppressWarnings({"rawtypes"})
 	private static AppiumDriver getDriver() {
 		return (AppiumDriver) new WebDriverTestBase().getDriver().getUnderLayingDriver();
 	}
 
-	// private static <T extends WebDriver>T getDriver() {
+	// @SuppressWarnings("unchecked")
+	// private static <T extends WebDriver> T getDriver() {
 	// return (T) new WebDriverTestBase().getDriver().getUnderLayingDriver();
 	// }
 
