@@ -102,7 +102,38 @@ public final class AppiumSteps {
 
 		return new Point[]{new Point(startx, startEndy), new Point(endx, startEndy)};
 	}
-
+	/**
+ 	 * Press and hold the at an absolute position on the screen until the
+ 	 * context menu event has fired.
+ 	 *
+ 	 * @param x
+ 	 *            x coordinate.
+ 	 * @param y
+ 	 *            y coordinate.
+ 	 * @param duration
+ 	 *            of the long-press, in milliseconds.
+ 	 */
+ 	@QAFTestStep(stepName = "longPress", description = "longPress on {x} {y} for {duration} duration")
+ 	public static void longPress(int x, int y, int duration) {
+ 		getDriver().tap(1, x, y, duration);
+ 	}
+ 
+ 	/**
+ 	 * Creates the swiping action. It is supposed to be performed inside the
+ 	 * given element.
+ 	 *
+ 	 * @param startX
+ 	 * @param startY
+ 	 * @param endX
+ 	 * @param endY
+ 	 * @param duration
+ 	 *            of the swipe, in milliseconds.
+ 	 */
+ 	@QAFTestStep(stepName = "swipe", description = "swipe from {startX},{startY} to {endX},{endY} in {duration} duration")
+ 	public static void swipe(int startX, int startY, int endX, int endY, int duration) {
+ 		getDriver().swipe(startX, startY, endX, endY, duration);
+ 	}
+  
 	@SuppressWarnings({"rawtypes"})
 	private static AppiumDriver getDriver() {
 		return (AppiumDriver) new WebDriverTestBase().getDriver().getUnderLayingDriver();
