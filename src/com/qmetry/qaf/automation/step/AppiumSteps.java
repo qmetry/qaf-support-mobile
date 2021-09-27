@@ -29,47 +29,75 @@
 
 package com.qmetry.qaf.automation.step;
 
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Point;
+import java.time.Duration;
 
+import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Platform;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.Command;
+import org.openqa.selenium.remote.CommandCodec;
+import org.openqa.selenium.remote.DriverCommand;
+import org.openqa.selenium.remote.ErrorCodes;
+import org.openqa.selenium.remote.HttpCommandExecutor;
+import org.openqa.selenium.remote.Response;
+import org.openqa.selenium.remote.ResponseCodec;
+import org.openqa.selenium.remote.http.HttpRequest;
+import org.openqa.selenium.remote.http.HttpResponse;
+
+import com.qmetry.qaf.automation.core.AutomationError;
 import com.qmetry.qaf.automation.ui.WebDriverTestBase;
+import com.qmetry.qaf.automation.ui.webdriver.QAFExtendedWebDriver;
+import com.qmetry.qaf.automation.util.ClassUtil;
+import com.qmetry.qaf.automation.util.JSONUtil;
 
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.MobileCommand;
 import io.appium.java_client.MultiTouchAction;
 import io.appium.java_client.TouchAction;
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.ios.IOSDriver;
+import io.appium.java_client.remote.AppiumCommandExecutor;
+import io.appium.java_client.touch.WaitOptions;
+import io.appium.java_client.touch.offset.PointOption;
+import io.appium.java_client.windows.WindowsDriver;
 
 /**
  * com.qmetry.qaf.automation.step.AppiumSteps.java
  * 
  * @author chirag.jayswal
  */
+@SuppressWarnings("rawtypes")
 public final class AppiumSteps {
-
+   public static int PRESS_TIME = 200; // ms
+   public static final WaitOptions watiOpt = WaitOptions.waitOptions(Duration.ofMillis(PRESS_TIME));
 	/**
 	 * Swipe from Bottom to Top.
 	 */
 	public static void swipeUp() {
-		Point[] points = getXYtoVSwipe();
-		new TouchAction(getDriver()).press(points[0].x, points[0].y).waitAction(1)
-				.moveTo(points[1].x, points[1].y).release().perform();
+		PointOption[] points = getXYtoVSwipe();
+		new TouchAction(getDriver()).press(points[0]).waitAction(watiOpt)
+				.moveTo(points[1]).release().perform();
 	}
 
 	/**
 	 * Swipe from Top to Bottom.
 	 */
 	public static void swipeDown() {
-		Point[] points = getXYtoVSwipe();
-		new TouchAction(getDriver()).press(points[1].x, points[1].y).waitAction(1)
-				.moveTo(points[0].x, points[0].y).release().perform();
+		PointOption[] points = getXYtoVSwipe();
+		new TouchAction(getDriver()).press(points[1]).waitAction(watiOpt)
+				.moveTo(points[0]).release().perform();
 	}
 
 	/**
 	 * Swipe from Right to Left.
 	 */
 	public static void swipeLeft() {
-		Point[] points = getXYtoHSwipe();
-		new TouchAction(getDriver()).press(points[0].x, points[0].y).waitAction(1)
-				.moveTo(points[1].x, points[1].y).release().perform();
+		PointOption[] points = getXYtoHSwipe();
+		new TouchAction(getDriver()).press(points[0]).waitAction(watiOpt)
+				.moveTo(points[1]).release().perform();
 
 	}
 
@@ -77,15 +105,15 @@ public final class AppiumSteps {
 	 * Swipe from Left to Right
 	 */
 	public static void swipeRight() {
-		Point[] points = getXYtoHSwipe();
-		new TouchAction(getDriver()).press(points[1].x, points[1].y).waitAction(1)
-				.moveTo(points[0].x, points[0].y).release().perform();
+		PointOption[] points = getXYtoHSwipe();
+		new TouchAction(getDriver()).press(points[1]).waitAction(watiOpt)
+				.moveTo(points[0]).release().perform();
 	}
 
 	/**
 	 * @return start and end points for vertical(top-bottom) swipe
 	 */
-	private static Point[] getXYtoVSwipe() {
+	private static PointOption[] getXYtoVSwipe() {
 		// Get screen size.
 		Dimension size = getDriver().manage().window().getSize();
 
@@ -95,14 +123,14 @@ public final class AppiumSteps {
 		int starty = (int) (size.height * 0.70);
 		// Find endy point which is at top side of screen.
 		int endy = (int) (size.height * 0.30);
-
-		return new Point[]{new Point(startEndx, starty), new Point(startEndx, endy)};
+		//return PointOption.
+		return new PointOption[]{PointOption.point(startEndx, starty), PointOption.point(startEndx, endy)};
 	}
 
 	/**
 	 * @return start and end points for horizontal(left-right) swipe
 	 */
-	private static Point[] getXYtoHSwipe() {
+	private static PointOption[] getXYtoHSwipe() {
 		// Get screen size.
 		Dimension size = getDriver().manage().window().getSize();
 
@@ -113,7 +141,7 @@ public final class AppiumSteps {
 		// Find y which is in middle of screen height.
 		int startEndy = size.height / 2;
 
-		return new Point[]{new Point(startx, startEndy), new Point(endx, startEndy)};
+		return new PointOption[]{PointOption.point(startx, startEndy), PointOption.point(endx, startEndy)};
 	}
 	/**
 	 * Press and hold the at an absolute position on the screen until the
@@ -132,7 +160,7 @@ public final class AppiumSteps {
 
 		for (int i = 0; i < 1; i++) {
 			TouchAction tap = new TouchAction(getDriver());
-			multiTouch.add(tap.press(x, y).waitAction(duration).release());
+			multiTouch.add(tap.press(PointOption.point(x, y)).waitAction(WaitOptions.waitOptions(Duration.ofMillis(duration))).release());
 		}
 		multiTouch.perform();
 	}
@@ -150,18 +178,52 @@ public final class AppiumSteps {
 	 */
 	@QAFTestStep(stepName = "swipe", description = "swipe from {startX},{startY} to {endX},{endY} in {duration} duration")
 	public static void swipe(int startX, int startY, int endX, int endY, int duration) {
-		new TouchAction(getDriver()).press(startX, startY).waitAction(duration)
-				.moveTo(endX, endY).release().perform();
+		new TouchAction(getDriver()).press(PointOption.point(startX, startY)).waitAction(WaitOptions.waitOptions(Duration.ofMillis(duration)))
+				.moveTo(PointOption.point(endX, endY)).release().perform();
 	}
 
-	@SuppressWarnings({"rawtypes"})
-	private static AppiumDriver getDriver() {
-		return (AppiumDriver) new WebDriverTestBase().getDriver().getUnderLayingDriver();
-	}
+	@SuppressWarnings("unchecked")
+	public static AppiumDriver<WebElement> getDriver() {
+		WebDriver driver = new WebDriverTestBase().getDriver().getUnderLayingDriver();
+		if (driver instanceof AppiumDriver)
+			return (AppiumDriver<WebElement>) new WebDriverTestBase().getDriver().getUnderLayingDriver();
+		if (driver instanceof QAFExtendedWebDriver) {
+			try {
+				Capabilities capabilities = ((QAFExtendedWebDriver) driver).getCapabilities();
+				HttpCommandExecutor executor = (HttpCommandExecutor) ((QAFExtendedWebDriver) driver)
+						.getCommandExecutor();
+				AppiumCommandExecutor appiumCommandExecutor = new AppiumCommandExecutor(MobileCommand.commandRepository,
+						executor.getAddressOfRemoteServer()) {
+					public Response execute(Command command) throws WebDriverException {
+						if (DriverCommand.NEW_SESSION.equals(command.getName())) {
+							setCommandCodec((CommandCodec<HttpRequest>) ClassUtil.getField("commandCodec", executor));
+							setResponseCodec((ResponseCodec<HttpResponse>) ClassUtil.getField("responseCodec", executor));
+							getAdditionalCommands().forEach(this::defineCommand);
 
-	// @SuppressWarnings("unchecked")
-	// private static <T extends WebDriver> T getDriver() {
-	// return (T) new WebDriverTestBase().getDriver().getUnderLayingDriver();
-	// }
+							Response response = new Response(((QAFExtendedWebDriver) driver).getSessionId());
+							response.setValue(JSONUtil.toMap(JSONUtil.toString(capabilities.asMap())));
+							response.setStatus(ErrorCodes.SUCCESS);
+							response.setState(ErrorCodes.SUCCESS_STRING);
+							return response;
+						} else {
+							return super.execute(command);
+						}
+					}
+				};
+				if (capabilities.getPlatform().is(Platform.ANDROID)) {
+					return new AndroidDriver<WebElement>(appiumCommandExecutor, capabilities);
+				}
+				if (capabilities.getPlatform().is(Platform.IOS)) {
+					return new IOSDriver<WebElement>(appiumCommandExecutor, capabilities);
+				}
+				if (capabilities.getPlatform().is(Platform.WINDOWS)) {
+					return new WindowsDriver<WebElement>(executor, capabilities);
+				}
+			} catch (Exception e) {
+				throw new AutomationError("Unable to build AppiumDriver from " + driver.getClass(), e);
+			}
+		}
+		throw new AutomationError("Could not retrieve AppiumDriver from " +driver.getClass());
+	}
 
 }
