@@ -14,10 +14,16 @@
 	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 	<info organisation="com.qmetry" module="qaf-support-mobile" status="integration">
 	</info>
+		<configurations>
+        <conf name="compile"  description="Required to compile application"/>
+        <conf name="runtime"  description="Additional run-time dependencies" extends="compile"/>
+        <conf name="test"     description="Required for test only" extends="runtime"/>
+        <conf name="provided" description="Needed for compile, but will be present on the target platform."/>
+    </configurations>
 
 	<dependencies>
-		<dependency org="com.qmetry" name="qaf" rev="latest.integration" />
-		<dependency org="org.aspectj" name="aspectjtools" rev="1.8.5">
+		<dependency org="com.qmetry" name="qaf" rev="${release.num}" conf="compile->default"/>
+		<dependency org="org.aspectj" name="aspectjtools" rev="1.9.5">
 			<artifact name="aspectjtools" type="jar"></artifact>
 		</dependency>
 		<dependency org="io.appium" name="java-client" rev="latest.integration"/>
