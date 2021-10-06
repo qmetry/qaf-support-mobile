@@ -26,6 +26,6 @@
 		<dependency org="org.aspectj" name="aspectjtools" rev="1.9.5">
 			<artifact name="aspectjtools" type="jar"></artifact>
 		</dependency>
-		<dependency org="io.appium" name="java-client" rev="latest.integration"/>
+		<dependency org="io.appium" name="java-client" rev="latest.integration"  conf="compile->default"/>
 	</dependencies>
 </ivy-module>

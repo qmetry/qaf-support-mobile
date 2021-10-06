@@ -78,7 +78,7 @@ public final class AppiumSteps {
 	 */
 	public static void swipeUp() {
 		PointOption[] points = getXYtoVSwipe();
-		new TouchAction(getDriver()).press(points[0]).waitAction(watiOpt)
+		new TouchAction(getAppiumDriver()).press(points[0]).waitAction(watiOpt)
 				.moveTo(points[1]).release().perform();
 	}
 
@@ -87,7 +87,7 @@ public final class AppiumSteps {
 	 */
 	public static void swipeDown() {
 		PointOption[] points = getXYtoVSwipe();
-		new TouchAction(getDriver()).press(points[1]).waitAction(watiOpt)
+		new TouchAction(getAppiumDriver()).press(points[1]).waitAction(watiOpt)
 				.moveTo(points[0]).release().perform();
 	}
 
@@ -96,7 +96,7 @@ public final class AppiumSteps {
 	 */
 	public static void swipeLeft() {
 		PointOption[] points = getXYtoHSwipe();
-		new TouchAction(getDriver()).press(points[0]).waitAction(watiOpt)
+		new TouchAction(getAppiumDriver()).press(points[0]).waitAction(watiOpt)
 				.moveTo(points[1]).release().perform();
 
 	}
@@ -106,7 +106,7 @@ public final class AppiumSteps {
 	 */
 	public static void swipeRight() {
 		PointOption[] points = getXYtoHSwipe();
-		new TouchAction(getDriver()).press(points[1]).waitAction(watiOpt)
+		new TouchAction(getAppiumDriver()).press(points[1]).waitAction(watiOpt)
 				.moveTo(points[0]).release().perform();
 	}
 
@@ -115,7 +115,7 @@ public final class AppiumSteps {
 	 */
 	private static PointOption[] getXYtoVSwipe() {
 		// Get screen size.
-		Dimension size = getDriver().manage().window().getSize();
+		Dimension size = getAppiumDriver().manage().window().getSize();
 
 		// Find x which is in middle of screen width.
 		int startEndx = size.width / 2;
@@ -132,7 +132,7 @@ public final class AppiumSteps {
 	 */
 	private static PointOption[] getXYtoHSwipe() {
 		// Get screen size.
-		Dimension size = getDriver().manage().window().getSize();
+		Dimension size = getAppiumDriver().manage().window().getSize();
 
 		// Find starting point x which is at right side of screen.
 		int startx = (int) (size.width * 0.70);
@@ -156,10 +156,10 @@ public final class AppiumSteps {
 	 */
 	@QAFTestStep(stepName = "longPress", description = "longPress on {x} {y} for {duration} duration")
 	public static void longPress(int x, int y, int duration) {
-		MultiTouchAction multiTouch = new MultiTouchAction(getDriver());
+		MultiTouchAction multiTouch = new MultiTouchAction(getAppiumDriver());
 
 		for (int i = 0; i < 1; i++) {
-			TouchAction tap = new TouchAction(getDriver());
+			TouchAction tap = new TouchAction(getAppiumDriver());
 			multiTouch.add(tap.press(PointOption.point(x, y)).waitAction(WaitOptions.waitOptions(Duration.ofMillis(duration))).release());
 		}
 		multiTouch.perform();
@@ -178,12 +178,17 @@ public final class AppiumSteps {
 	 */
 	@QAFTestStep(stepName = "swipe", description = "swipe from {startX},{startY} to {endX},{endY} in {duration} duration")
 	public static void swipe(int startX, int startY, int endX, int endY, int duration) {
-		new TouchAction(getDriver()).press(PointOption.point(startX, startY)).waitAction(WaitOptions.waitOptions(Duration.ofMillis(duration)))
+		new TouchAction(getAppiumDriver()).press(PointOption.point(startX, startY)).waitAction(WaitOptions.waitOptions(Duration.ofMillis(duration)))
 				.moveTo(PointOption.point(endX, endY)).release().perform();
 	}
 
+	@QAFTestStep(description = "switch driver to the {contextName} context ")
+	public void switchContext(String contextName) {
+		getAppiumDriver().context(contextName);
+	}
+	
 	@SuppressWarnings("unchecked")
-	public static AppiumDriver<WebElement> getDriver() {
+	public static AppiumDriver<WebElement> getAppiumDriver() {
 		WebDriver driver = new WebDriverTestBase().getDriver().getUnderLayingDriver();
 		if (driver instanceof AppiumDriver)
 			return (AppiumDriver<WebElement>) new WebDriverTestBase().getDriver().getUnderLayingDriver();
